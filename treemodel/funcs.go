@@ -269,13 +269,20 @@ func PasteTreeStore(
 ) error {
 
 	var err error
-	var dst_lvl_track *gtk.TreePath
+	var dst_lvl_track *gtk.TreeIter
+	{
 
-	dst_lvl_track, err = gtk.TreePathNewFromString(
-		path_to_use_as_parent_in_dst.String(),
-	)
-	if err != nil {
-		return err
+		p, err := gtk.TreePathNewFromString(
+			path_to_use_as_parent_in_dst.String(),
+		)
+		if err != nil {
+			return err
+		}
+
+		dst_lvl_track, err = dst.GetIter(p)
+		if err != nil {
+			return err
+		}
 	}
 
 	var tfunc func(
@@ -290,17 +297,12 @@ func PasteTreeStore(
 		iter *gtk.TreeIter,
 	) error {
 
-		dst_lvl_track_it, err := dst.GetIter(dst_lvl_track)
-		if err != nil {
-			return err
-		}
-
 		iter_path, err := m.GetPath(iter)
 		if err != nil {
 			return err
 		}
 
-		i := dst.Append(dst_lvl_track_it)
+		i := dst.Append(dst_lvl_track)
 		i_path, err := dst.GetPath(i)
 		if err != nil {
 			return err
@@ -317,8 +319,12 @@ func PasteTreeStore(
 		}
 
 		if m.IterHasChild(iter) {
-			dst_lvl_track_copy := dst_lvl_track.String()
-			dst_lvl_track = i_path
+			dst_lvl_track_copy, err := dst_lvl_track.Copy()
+			if err != nil {
+				return err
+			}
+
+			dst_lvl_track = i
 			err = TreeStoreForEach(
 				src,
 				iter_path,
@@ -327,10 +333,7 @@ func PasteTreeStore(
 			if err != nil {
 				return err
 			}
-			dst_lvl_track, err = gtk.TreePathNewFromString(dst_lvl_track_copy)
-			if err != nil {
-				return err
-			}
+			dst_lvl_track = dst_lvl_track_copy
 		}
 
 		return nil

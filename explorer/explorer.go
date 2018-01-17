@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/AnimusPEXUS/gtkcollection/explorer/ui"
-	"github.com/AnimusPEXUS/gtkcollection/treemodel"
+	"github.com/AnimusPEXUS/gotk3collection/explorer/ui"
+	"github.com/AnimusPEXUS/gotk3collection/treemodel"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
