@@ -189,32 +189,36 @@ func CopyTreeStoreType(src *gtk.TreeStore) (*gtk.TreeStore, error) {
 }
 
 func TreeStorePopulatePath(
-	ts *gtk.TreeStore,
-	ts_path *gtk.TreePath,
-	values [][]*glib.Value,
+	dst *gtk.TreeStore,
+	path *gtk.TreePath,
+	values [][]*Value,
 ) error {
 
 	var it *gtk.TreeIter
 	var err error
 
-	if ts_path == nil {
+	if path == nil {
 		it = nil
 	} else {
-		it, err = ts.GetIter(ts_path)
+		it, err = dst.GetIter(path)
 		if err != nil {
 			return err
 		}
 	}
 
 	for _, i := range values {
-		wit := ts.Append(it)
+		wit := dst.Append(it)
 
-		for jj, j := range i {
-			err = ts.SetValue(wit, jj, j)
-			if err != nil {
-				return err
-			}
+		wit_p, err := dst.GetPath(wit)
+		if err != nil {
+			return err
 		}
+
+		err = SetTreeStoreRowValues(dst, wit_p, i)
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
