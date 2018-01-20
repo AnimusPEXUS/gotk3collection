@@ -27,6 +27,7 @@ type Explorer struct {
 	tb_delete        *gtk.ToolButton
 	tb_s1            *gtk.SeparatorToolItem
 	tb_new_directory *gtk.ToolButton
+	tb_new_file      *gtk.ToolButton
 	tb_s2            *gtk.SeparatorToolItem
 	tb_up            *gtk.ToolButton
 	tb_down          *gtk.ToolButton
@@ -45,11 +46,11 @@ type Explorer struct {
 
 	active_view int
 
-	cut_function      func(selected_items []*SelectedForOperationItem) error
-	copy_function     func(selected_items []*SelectedForOperationItem) error
-	paste_function    func(target *SelectedForOperationItem) error
-	delete_function   func(selected_items []*SelectedForOperationItem) error
-	mkdirall_function func(path string) error
+	cut_function    func(selected_items []*SelectedForOperationItem) error
+	copy_function   func(selected_items []*SelectedForOperationItem) error
+	paste_function  func(target *SelectedForOperationItem) error
+	delete_function func(selected_items []*SelectedForOperationItem) error
+	mkdir_function  func(target *SelectedForOperationItem) error
 }
 
 func ExplorerNew() (*Explorer, error) {
@@ -169,6 +170,12 @@ func ExplorerNew() (*Explorer, error) {
 		return nil, err
 	} else {
 		self.tb_new_directory = t.(*gtk.ToolButton)
+	}
+
+	if t, err := builder.GetObject("tb_new_file"); err != nil {
+		return nil, err
+	} else {
+		self.tb_new_file = t.(*gtk.ToolButton)
 	}
 
 	if t, err := builder.GetObject("tb_up"); err != nil {
@@ -486,6 +493,7 @@ func (self *Explorer) SetControlls(
 	self.tb_delete.SetVisible(can_delete)
 
 	self.tb_new_directory.SetVisible(can_new_directory)
+	self.tb_new_file.SetVisible(can_new_file)
 
 	self.tb_s1.SetVisible(
 		self.tb_cut.GetVisible() ||
@@ -621,8 +629,8 @@ func (self *Explorer) SetDeleteFunction(
 	self.delete_function = fn
 }
 
-func (self *Explorer) SetMkDirAllFunction(
-	fn func(path string) error,
+func (self *Explorer) SetMkDirFunction(
+	fn func(target *SelectedForOperationItem) error,
 ) {
-	self.mkdirall_function = fn
+	self.mkdir_function = fn
 }

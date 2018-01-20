@@ -104,6 +104,11 @@ func RenderTreePathString(
 	path *gtk.TreePath,
 	str_col int,
 ) ([]string, error) {
+
+	if path == nil {
+		return []string{}, nil
+	}
+
 	ret := make([]string, 0)
 
 	ind := path.GetIndices()
@@ -276,17 +281,22 @@ func PasteTreeStore(
 	var dst_lvl_track *gtk.TreeIter
 	{
 
-		p, err := gtk.TreePathNewFromString(
-			path_to_use_as_parent_in_dst.String(),
-		)
-		if err != nil {
-			return err
+		if path_to_use_as_parent_in_dst == nil {
+			dst_lvl_track = nil
+		} else {
+			p, err := gtk.TreePathNewFromString(
+				path_to_use_as_parent_in_dst.String(),
+			)
+			if err != nil {
+				return err
+			}
+
+			dst_lvl_track, err = dst.GetIter(p)
+			if err != nil {
+				return err
+			}
 		}
 
-		dst_lvl_track, err = dst.GetIter(p)
-		if err != nil {
-			return err
-		}
 	}
 
 	var tfunc func(
